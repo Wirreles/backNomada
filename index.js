@@ -72,7 +72,7 @@ app.post('/create_preference', async (req, res) => {
           failure: 'www.masnomada.com/',
         },
         auto_return: 'approved', 
-        notification_url: 'https://c55f-2803-9800-b8ca-80a8-75d5-89bf-507-c76c.ngrok-free.app/payment_success',
+        notification_url: 'https://backnomada.onrender.com/payment_success',
         external_reference: orderId, // Asignar el teléfono como referencia externa
       },
     });
