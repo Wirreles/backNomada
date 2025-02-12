@@ -91,26 +91,26 @@ app.post('/create_preference', async (req, res) => {
       },
     });
 
-    // Estructura de los datos de la compra que se guardarán en Firestore
     const orderData = {
-      nombre,
-      apellido,
-      email,
-      telefono,
-      ciudad,
-      codigoPostal,
-      provincia,
-      departamento: departamento || '', // Se guarda vacío si no se proporciona
-      codigoFinal,
-      totalAmount,
-      nombreProducto,
-      deliveryMethod, // Método de envío seleccionado
-      discountCode: discountCode || '', // Código de descuento aplicado
-      preferenceId: result?.body?.id || result?.id,
-      orderId,
-      status: 'pending', // Estado inicial de la compra
+      nombre: nombre || '',
+      apellido: apellido || '',
+      email: email || '', // Evitar undefined
+      telefono: telefono || '',
+      ciudad: ciudad || '',
+      codigoPostal: codigoPostal || '',
+      provincia: provincia || '',
+      departamento: departamento || '',
+      codigoFinal: codigoFinal || '',
+      totalAmount: totalAmount || 0,
+      nombreProducto: nombreProducto || '',
+      deliveryMethod: deliveryMethod || '',
+      discountCode: discountCode || '',
+      preferenceId: result?.body?.id || result?.id || '',
+      orderId: orderId || '',
+      status: 'pending',
       createdAt: new Date().toISOString(),
-    };
+   };
+   
 
     // Guardar los datos de la compra en Firestore en la colección "ordenesCompra"
     const orderDoc = firestore.collection('ordenesCompra').doc(orderId);
