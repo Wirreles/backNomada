@@ -5,7 +5,7 @@ import admin from 'firebase-admin';  // Aquí necesitas `require` para Firebase
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import * as dotenv from 'dotenv';
 import { readFileSync } from 'fs';
-// import googleCredentials from './utils/nomadamuebles-c2c81-firebase-adminsdk-fbsvc-bc457b1f3b.json' assert { type: 'json' }; 
+// import googleCredentials from './utils/nomadamuebles-d3f29-c9e3acf57b37.json' assert { type: 'json' }; 
 // Cargar variables de entorno
 dotenv.config();
 // Inicializar Firebase Admin SDK
@@ -13,7 +13,7 @@ dotenv.config();
 //   credential: admin.credential.cert(googleCredentials)
 // });
 
-const serviceAccount = JSON.parse(readFileSync('/etc/secrets/nomadamuebles-c2c81-firebase-adminsdk-fbsvc-bc457b1f3b.json', 'utf-8'));
+const serviceAccount = JSON.parse(readFileSync('/etc/secrets/nomadamuebles-d3f29-c9e3acf57b37.json', 'utf-8'));
 // Inicializar Firebase Admin SDK
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
