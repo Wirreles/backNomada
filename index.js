@@ -46,8 +46,7 @@ app.post('/create_preference', async (req, res) => {
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  // Extraer userData del req.body correctamente
-  const { totalAmount, codigoFinal, deliveryMethod, discountCode, nombreProducto , userData } = req.body;
+  const { totalAmount, codigoFinal, deliveryMethod, discountAmount, nombreProducto, userData } = req.body;
 
   if (!userData) {
     return res.status(400).json({ error: 'Faltan los datos del usuario en la solicitud' });
@@ -66,7 +65,15 @@ app.post('/create_preference', async (req, res) => {
 
   try {
     // Generar un ID único para la orden de compra
-    const orderId = createIdDoc(); // Generar ID de compra
+    const orderId = createIdDoc();
+
+    // Calcular el precio final con el descuento aplicado
+    const originalPrice = totalAmount; // Precio sin descuento
+    let finalPrice = totalAmount; // Precio con descuento aplicado
+
+    if (discountAmount && discountAmount > 0 && discountAmount <= 100) {
+      finalPrice = totalAmount - (totalAmount * (discountAmount / 100));
+    }
 
     // Crear la preferencia de pago para MercadoPago
     const preference = new Preference(client);
@@ -75,9 +82,9 @@ app.post('/create_preference', async (req, res) => {
       body: {
         items: [
           {
-            title: "Compra tu Isla", // Cambiar por un título dinámico si es necesario
+            title: "Compra tu Isla",
             quantity: 1,
-            unit_price: totalAmount,
+            unit_price: finalPrice, // Se envía el precio con descuento
             currency_id: "ARS",
           },
         ],
@@ -94,23 +101,23 @@ app.post('/create_preference', async (req, res) => {
     const orderData = {
       nombre: nombre || '',
       apellido: apellido || '',
-      email: email || '', // Evitar undefined
+      email: email || '',
       telefono: telefono || '',
       ciudad: ciudad || '',
       codigoPostal: codigoPostal || '',
       provincia: provincia || '',
       departamento: departamento || '',
       codigoFinal: codigoFinal || '',
-      totalAmount: totalAmount || 0,
+      originalPrice: originalPrice, // Se almacena el precio sin descuento
+      finalPrice: finalPrice, // Se almacena el precio con descuento
+      discountAmount: discountAmount || 0,
       nombreProducto: nombreProducto || '',
       deliveryMethod: deliveryMethod || '',
-      discountCode: discountCode || '',
       preferenceId: result?.body?.id || result?.id || '',
       orderId: orderId || '',
       status: 'pending',
       createdAt: new Date().toISOString(),
-   };
-   
+    };
 
     // Guardar los datos de la compra en Firestore en la colección "ordenesCompra"
     const orderDoc = firestore.collection('ordenesCompra').doc(orderId);
