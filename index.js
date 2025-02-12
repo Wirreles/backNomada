@@ -41,14 +41,28 @@ app.options('*', cors(corsOptions));  // Permitir CORS en las solicitudes prefli
 app.use(cors(corsOptions)); // Habilita CORS con opciones
 app.use(express.json());
 
-// Ruta para crear la preferencia de pago
 app.post('/create_preference', async (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  // Recibir datos desde el cuerpo de la solicitud
-  const { totalAmount, telefono, nombre, email, codigoFinal } = req.body;
+  // Extraer userData del req.body correctamente
+  const { totalAmount, codigoFinal, deliveryMethod, discountCode, nombreProducto , userData } = req.body;
+
+  if (!userData) {
+    return res.status(400).json({ error: 'Faltan los datos del usuario en la solicitud' });
+  }
+
+  const {
+    telefono,
+    nombre,
+    apellido,
+    email,
+    ciudad,
+    codigoPostal,
+    provincia,
+    departamento
+  } = userData;
 
   try {
     // Generar un ID único para la orden de compra
@@ -71,23 +85,31 @@ app.post('/create_preference', async (req, res) => {
           success: 'www.masnomada.com/',
           failure: 'www.masnomada.com/',
         },
-        auto_return: 'approved', 
+        auto_return: 'approved',
         notification_url: 'https://backnomada.onrender.com/payment_success',
-        external_reference: orderId, // Asignar el teléfono como referencia externa
+        external_reference: orderId,
       },
     });
 
     // Estructura de los datos de la compra que se guardarán en Firestore
     const orderData = {
-      telefono: telefono,
-      nombre: nombre,
-      email: email,
-      codigoFinal: codigoFinal,
-      totalAmount: totalAmount,
+      nombre,
+      apellido,
+      email,
+      telefono,
+      ciudad,
+      codigoPostal,
+      provincia,
+      departamento: departamento || '', // Se guarda vacío si no se proporciona
+      codigoFinal,
+      totalAmount,
+      nombreProducto,
+      deliveryMethod, // Método de envío seleccionado
+      discountCode: discountCode || '', // Código de descuento aplicado
       preferenceId: result?.body?.id || result?.id,
-      orderId: orderId,
+      orderId,
       status: 'pending', // Estado inicial de la compra
-      createdAt: new Date().toISOString(), // Fecha de creación
+      createdAt: new Date().toISOString(),
     };
 
     // Guardar los datos de la compra en Firestore en la colección "ordenesCompra"
@@ -95,14 +117,13 @@ app.post('/create_preference', async (req, res) => {
     await orderDoc.set(orderData);
 
     // Enviar la preferencia de MercadoPago y el ID de la orden al front-end
-    return res.json({
-      ...result
-    });
+    return res.json({ ...result });
   } catch (error) {
     console.error('Error al crear la preferencia:', error);
     return res.status(500).json({ error: 'Error al crear la preferencia de pago' });
   }
 });
+
 
 
 
