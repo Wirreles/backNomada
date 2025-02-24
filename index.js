@@ -13,7 +13,7 @@ dotenv.config();
 //   credential: admin.credential.cert(googleCredentials)
 // });
 
-const serviceAccount = JSON.parse(readFileSync('/etc/secrets/nomadamuebles-d3f29-c9e3acf57b37.json', 'utf-8'));
+const serviceAccount = JSON.parse(readFileSync('/etc/secrets/pdf-manager-7fbf8-129de6ca5512.json', 'utf-8'));
 // Inicializar Firebase Admin SDK
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
